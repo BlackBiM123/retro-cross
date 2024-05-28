@@ -64,7 +64,7 @@ function cellClick(n) {
 
 onMounted(()=>{
   if (window && window.Telegram) {
-    user.value = window.Telegram.initDataUnsafe.user.id
+    user.value = window.Telegram.WebApp.initDataUnsafe.user.id
     window.Telegram.WebApp.expand()
     window.Telegram.WebApp.MainButton.onClick(startGame) //set func on main button click
     window.Telegram.WebApp.MainButton.setParams({'text': 'Play RetroCROSS'}) // set byn params
