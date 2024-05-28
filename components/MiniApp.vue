@@ -64,7 +64,8 @@ onMounted(()=>{
     window.Telegram.WebApp.expand()
     window.Telegram.WebApp.MainButton.onClick(startGame) //set func on main button click
     window.Telegram.WebApp.MainButton.setParams({'text': 'Play RetroCROSS'}) // set byn params
-    window.Telegram.WebApp.MainButton.textColor = '#121113'
+    window.Telegram.WebApp.MainButton.textColor = '#ffb537'
+    window.Telegram.WebApp.MainButton.color = '#121113'
     window.Telegram.WebApp.MainButton.show() //show telegram btn
 
   }
