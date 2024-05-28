@@ -64,7 +64,7 @@ function cellClick(n) {
 
 onMounted(()=>{
   if (window && window.Telegram) {
-    user.value = window.Telegram.WebApp.initDataUnsafe.user.id
+    user.value = window.Telegram.WebApp.initDataUnsafe.user
     window.Telegram.WebApp.expand()
     window.Telegram.WebApp.MainButton.onClick(startGame) //set func on main button click
     window.Telegram.WebApp.MainButton.setParams({'text': 'Play RetroCROSS'}) // set byn params
@@ -84,7 +84,9 @@ onMounted(()=>{
       <div key="startpage" class="start-page" v-if="!game">
         <img src="public/logo-retro.svg">
         <h3>RetroCross</h3>
-        <div class="user-info" v-if="user">{{user}}</div>
+        <div class="user-info" v-if="user">
+          {{user.username}} - ID:{{ user.id }}
+        </div>
       </div>
       <div key="gamepage" class="game-page" v-else>
         <h3 v-if="!isWin">Who win?</h3>
