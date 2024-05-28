@@ -35,7 +35,7 @@ function back(){
 }
 function startGame() {
   game.value = true
-  window.Telegram.WebApp.MainButton.hide() 
+  window.Telegram.WebApp.MainButton.hide()
 }
 function reset() {
   currentState.value = {
@@ -64,7 +64,7 @@ onMounted(()=>{
     window.Telegram.WebApp.expand()
     window.Telegram.WebApp.MainButton.onClick(startGame) //set func on main button click
     window.Telegram.WebApp.MainButton.setParams({'text': 'Play RetroCROSS'}) // set byn params
-    window.Telegram.WebApp.ThemeParams.bg_color = '#FF0000'
+    window.Telegram.WebApp.MainButton.textColor = '#121113'
     window.Telegram.WebApp.MainButton.show() //show telegram btn
 
   }
