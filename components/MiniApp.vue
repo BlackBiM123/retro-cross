@@ -64,6 +64,7 @@ function cellClick(n) {
 
 onMounted(()=>{
   if (window && window.Telegram) {
+    window.Telegram.WebApp.setHeaderColor('#121113')
     user.value = window.Telegram.WebApp.initDataUnsafe.user
     window.Telegram.WebApp.expand()
     window.Telegram.WebApp.MainButton.onClick(startGame) //set func on main button click
