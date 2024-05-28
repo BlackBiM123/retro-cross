@@ -3,7 +3,8 @@ import { MainButton, useWebAppPopup } from 'vue-tg'
 import {ref, computed, onMounted} from 'vue'
 const { showAlert } = useWebAppPopup()
 
-let game = ref(false)
+let game = ref(false),
+    user = ref(null)
 let firstPlayer = ref(true)
 
 let currentState = ref({
@@ -63,6 +64,7 @@ function cellClick(n) {
 
 onMounted(()=>{
   if (window && window.Telegram) {
+    user.value = window.Telegram.initDataUnsafe.user.id
     window.Telegram.WebApp.expand()
     window.Telegram.WebApp.MainButton.onClick(startGame) //set func on main button click
     window.Telegram.WebApp.MainButton.setParams({'text': 'Play RetroCROSS'}) // set byn params
@@ -82,7 +84,7 @@ onMounted(()=>{
       <div key="startpage" class="start-page" v-if="!game">
         <img src="public/logo-retro.svg">
         <h3>RetroCross</h3>
-        <button class="btn" @click="game = true">Play</button>
+        <div class="user-info" v-if="user">{{user}}</div>
       </div>
       <div key="gamepage" class="game-page" v-else>
         <h3 v-if="!isWin">Who win?</h3>
