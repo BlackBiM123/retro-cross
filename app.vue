@@ -1,5 +1,4 @@
 <template>
-  <NuxtPage />
   <ClientOnly>
     <MiniApp />
   </ClientOnly>
