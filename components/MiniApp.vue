@@ -32,10 +32,12 @@ let isWin = computed(()=>{
 
 function back(){
   game.value = false
+  window.Telegram.WebApp.MainButton.show() //show telegram btn
 }
 function startGame() {
   game.value = true
   window.Telegram.WebApp.MainButton.hide()
+  window.Telegram.WebApp.expand()
 }
 function reset() {
   currentState.value = {
