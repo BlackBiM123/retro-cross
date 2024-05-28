@@ -19,6 +19,9 @@ const { showAlert } = useWebAppPopup()
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  img{
+    max-width:50%;
+  }
   h3{
     margin:40px 0;
   }
