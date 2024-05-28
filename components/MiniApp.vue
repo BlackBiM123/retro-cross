@@ -1,6 +1,6 @@
 <script setup>
 import { MainButton, useWebAppPopup } from 'vue-tg'
-import {ref, computed} from 'vue'
+import {ref, computed, onMounted} from 'vue'
 const { showAlert } = useWebAppPopup()
 
 let game = ref(false)
@@ -30,7 +30,22 @@ let isWin = computed(()=>{
   return result
 })
 
-
+function back(){
+  game.value = false
+}
+function reset() {
+  currentState.value = {
+    0: null,
+    1: null,
+    2: null,
+    3: null,
+    4: null,
+    5: null,
+    6: null,
+    7: null,
+    8: null,
+  }
+}
 
 
 function cellClick(n) {
@@ -40,6 +55,9 @@ function cellClick(n) {
   firstPlayer.value = !firstPlayer.value
 }
 
+onMounted(()=>{
+  if (window && window.Telegram) window.Telegram.WebApp.expand()
+})
 </script>
 
 <template>
@@ -60,7 +78,13 @@ function cellClick(n) {
             <span v-if="currentState[cell - 1] === 'o'"><img src="public/circle.svg"></span>
           </div>
         </div>
+        <div class="controls">
+          <span @click="reset">Play again</span>
+          <span @click="back">Back</span>
+        </div>
+
     </div>
+
     </transition>
   </div>
 </template>
@@ -129,6 +153,14 @@ function cellClick(n) {
           height:auto;
           color: #00ffa6;
         }
+      }
+    }
+    .controls{
+      margin-top:20px;
+      display:flex;
+      justify-content: space-between;
+      span{
+        text-decoration: underline;
       }
     }
   }

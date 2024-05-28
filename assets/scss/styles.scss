@@ -31,8 +31,9 @@ html, body, #__nuxt, #__nuxt > div{
   font-family: "Press Start 2P", system-ui;
   cursor:pointer;
   transition: background 0.3s;
+  background: #ffb537;
   text-decoration: none;
   &:hover, &:active{
-    background: #ffb537;
+    background: #FFF;
   }
 }
