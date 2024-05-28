@@ -56,7 +56,13 @@ function cellClick(n) {
 }
 
 onMounted(()=>{
-  if (window && window.Telegram) window.Telegram.WebApp.expand()
+  if (window && window.Telegram) {
+    window.Telegram.WebApp.expand()
+    window.Telegram.WebApp.MainButton.onClick(back) //set func on main button click
+    window.Telegram.WebApp.MainButton.setParams({'text': 'Корзина'}) // set byn params
+    window.Telegram.WebApp.MainButton.show() //show telegram btn
+  }
+
 })
 </script>
 
