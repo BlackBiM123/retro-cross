@@ -66,10 +66,10 @@ onMounted(()=>{
     window.Telegram.WebApp.setBackgroundColor('#0b0031')
     user.value = window.Telegram.WebApp.initDataUnsafe.user
     window.Telegram.WebApp.expand()
-    window.Telegram.WebApp.MainButton.onClick(startGame(5,5,4,4)) //set func on main button click
-    window.Telegram.WebApp.MainButton.setParams({'text': 'Play RetroCROSS'}) // set byn params
-    window.Telegram.WebApp.MainButton.textColor = '#121113'
-    window.Telegram.WebApp.MainButton.color = '#ffb537'
+    //window.Telegram.WebApp.MainButton.onClick(startGame(5,5,4,4)) //set func on main button click
+    //window.Telegram.WebApp.MainButton.setParams({'text': 'Play RetroCROSS'}) // set byn params
+    //window.Telegram.WebApp.MainButton.textColor = '#121113'
+    //window.Telegram.WebApp.MainButton.color = '#ffb537'
     //window.Telegram.WebApp.MainButton.show() //show telegram btn
 
   }
