@@ -93,7 +93,8 @@ onMounted(()=>{
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-image: linear-gradient(to bottom, #0b0031, #16114a, #291c64, #3d267f, #53319b);
+  //background-image: linear-gradient(to bottom, #0b0031, #16114a, #291c64, #3d267f, #53319b);
+  background-image: linear-gradient(to bottom, #080018, #0d0a31, #261b50, #2d2057, #53319b);
   overflow: hidden;
   .logo{
     font-size:48px;
@@ -119,6 +120,8 @@ onMounted(()=>{
     flex-direction: column;
     align-items: center;
     flex-grow: 1;
+    min-width: 320px;
+    width: 90%;
     img{
       max-width:50%;
       margin:50px 0;
