@@ -7,8 +7,6 @@
         <span v-if="user"> {{user.username}} </span>
 
         <button style="font-size:10px;" class="btn" @click="startGame(4,4,4,4)">4х4 (4 tries - 4 for win)</button>
-        <button style="font-size:10px;" class="btn" @click="startGame(4,4,4,3)">4х4 (4 tries - 3 for win)</button>
-        <button style="font-size:10px;" class="btn" @click="startGame(5,5,5,5)">5х5 (5 tries - 5 for win)</button>
         <button style="font-size:10px;" class="btn" @click="startGame(5,5,4,4)">5х5 (4 tries - 4 for win)</button>
         <button style="font-size:10px;" class="btn" @click="startGame(5,5,5,4)">5х5 (5 tries - 4 for win)</button>
       </div>
@@ -75,7 +73,9 @@ onMounted(()=>{
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background-image: linear-gradient(to bottom, #0b0031, #16114a, #291c64, #3d267f, #53319b);
   .layout{
+    display:none;
     position: fixed;
     left:0;
     top:0;

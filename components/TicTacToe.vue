@@ -5,7 +5,8 @@
       <div
           v-for="(cell, cellIndex) in row"
           :key="cellIndex"
-          :class="['cell', { 'fading': isFading(rowIndex, cellIndex), 'winning': isWinningCell(rowIndex, cellIndex) }]"
+          :style="generatePosition()"
+          :class="['cell', { 'fading': isFading(rowIndex, cellIndex), 'cell-x': cell === 'X', 'cell-o': cell === 'O', 'winning': isWinningCell(rowIndex, cellIndex) }]"
           @click="() => makeMove(rowIndex, cellIndex)"
       >
         {{ cell }}
@@ -20,7 +21,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import {onMounted, ref} from 'vue';
 
 const props = defineProps(['gameSet'])
 const emits = defineEmits(['back'])
@@ -33,6 +34,20 @@ const nToWin = props.gameSet ? props.gameSet.nToWin : 4;  // Количеств�
 const board = ref(Array.from({ length: rows }, () => Array(cols).fill('')));
 const currentPlayer = ref('X');
 const winner = ref(null);
+
+let initDone = ref(false)
+
+function generatePosition() {
+  let min = -200, max = 200
+  let left = !initDone.value ? Math.floor(Math.random() * (max - min + 1)) + min : 0
+  let top = !initDone.value ? Math.floor(Math.random() * (50 - -50 + 1)) + -50 : 0
+  let index = !initDone.value ? Math.floor(Math.random() * (30 - 1 + 1)) + 1 : 1
+  let scale = !initDone.value ? Math.random() * (2 - 0.1) + 0.1 : 1
+  let opacity = !initDone.value ? Math.random() * (0.2 - 0.01) + 0.01 : 1
+  let td = Math.random() * (1 - 0.1) + 0.1
+  return [`left: ${left}px`, `top: ${top}px`, `z-index: ${index}`, `transform: scale(${scale})`, `opacity: ${opacity}`, `transition-duration: ${td}s`]
+}
+
 const movesHistory = ref({ X: [], O: [] });  // История ходов для каждого игрока
 const winningCells = ref([]);  // Ячейки выигрышной линии
 
@@ -152,6 +167,13 @@ const resetGame = () => {
   movesHistory.value = { X: [], O: [] };
   winningCells.value = [];
 };
+onMounted(()=>{
+  setTimeout(()=>{
+    document.querySelectorAll('.cell').forEach(item => item.classList.add('ready'))
+    initDone.value = true
+  }, 100)
+
+})
 </script>
 
 <style>
@@ -166,10 +188,10 @@ const resetGame = () => {
 }
 
 .cell {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   border: 1px solid #FFF;
-  background: #333;
+  background: linear-gradient(to right bottom, rgba(255,255,255,0.03), rgba(255,255,255,0.13));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -177,6 +199,13 @@ const resetGame = () => {
   cursor: pointer;
   position: relative;
   z-index: 1;
+}
+.cell-x
+.cell.ready{
+  left:0 !important;
+  top:0 !important;
+  transform: none !important;
+  opacity: 1 !important;
 }
 
 .fading {
