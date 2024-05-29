@@ -10,7 +10,7 @@
         <button style="font-size:10px;" class="btn" @click="startGame(4,4,4,3)">4х4 (4 tries - 3 for win)</button>
         <button style="font-size:10px;" class="btn" @click="startGame(5,5,5,5)">5х5 (5 tries - 5 for win)</button>
         <button style="font-size:10px;" class="btn" @click="startGame(5,5,4,4)">5х5 (4 tries - 4 for win)</button>
-        <button style="font-size:10px;" class="btn" @click="startGame(5,5,5,3)">5х5 (5 tries - 3 for win)</button>
+        <button style="font-size:10px;" class="btn" @click="startGame(5,5,5,4)">5х5 (5 tries - 4 for win)</button>
       </div>
       <div key="gamepage" class="game-page" v-else>
         <tic-tac-toe :game-set="gameSet" @back="back"/>
