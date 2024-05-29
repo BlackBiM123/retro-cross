@@ -22,8 +22,9 @@ html, body, #__nuxt, #__nuxt > div{
   color:#FFFFFF;
 }
 .btn{
-  height:48px;
-  border-radius: 4px;
+  height:45px;
+  min-height:45px;
+  border-radius: 8px;
   display:flex;
   align-items: center;
   justify-content: center;
@@ -38,6 +39,7 @@ html, body, #__nuxt, #__nuxt > div{
   transition: background 0.3s;
   background: #f7cb81;
   text-decoration: none;
+  color:#121113;
   &:hover, &:active{
     background: #f5bf65;
   }

@@ -88,7 +88,7 @@ onMounted(()=>{
   opacity: 0;
 }
 .main{
-  padding:30px 0;
+  padding:20px 0 30px;
   display:flex;
   flex-direction: column;
   align-items: center;
