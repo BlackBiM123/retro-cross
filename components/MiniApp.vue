@@ -1,6 +1,7 @@
 <script setup>
 import { MainButton, useWebAppPopup } from 'vue-tg'
 import {ref, computed, onMounted} from 'vue'
+import TicTacToe from "./TicTacToe.vue";
 const { showAlert } = useWebAppPopup()
 
 let game = ref(false),
@@ -85,7 +86,7 @@ onMounted(()=>{
     <transition >
       <div key="startpage" class="start-page" v-if="!game">
         <img src="public/logo-retro.svg">
-        <h3>RetroCross</h3>
+        <h3 @click="startGame">RetroCross</h3>
         <div class="user-info" v-if="user">
           {{user.username}} - ID:{{ user.id }}
         </div>
@@ -93,16 +94,7 @@ onMounted(()=>{
       <div key="gamepage" class="game-page" v-else>
         <h3 v-if="!isWin">Who win?</h3>
         <h3 v-else>Player {{ isWin }} win!</h3>
-        <div class="retro-cross-field">
-          <div :class="{'empty': !currentState[cell]}" class="cell" v-for="cell of 9" @click="cellClick(cell - 1)">
-            <span v-if="currentState[cell - 1] === 'x'"><img src="public/cross1.svg"></span>
-            <span v-if="currentState[cell - 1] === 'o'"><img src="public/circle.svg"></span>
-          </div>
-        </div>
-        <div class="controls">
-          <span @click="reset">Play again</span>
-          <span @click="back">Back</span>
-        </div>
+        <tic-tac-toe />
 
     </div>
 
