@@ -24,7 +24,6 @@
       <div key="gamepage" class="game-page" v-else>
         <tic-tac-toe :game-set="gameSet" @back="back"/>
       </div>
-
     </transition>
     <div class="bottom-nav">
       <span class="nav-item" @click="back"><Icon name="majesticons:article-line" size="36" /></span>
@@ -53,7 +52,7 @@ let game = ref(false),
 function back(){
   game.value = false
   gameSet.value = null
-  window.Telegram.WebApp.MainButton.show() //show telegram btn
+  //window.Telegram.WebApp.MainButton.show() //show telegram btn
 }
 function startGame(rows, cols, tries, nToWin) {
   gameSet.value = rows ? {rows, cols, tries, nToWin} : null
