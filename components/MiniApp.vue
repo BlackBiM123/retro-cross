@@ -4,7 +4,8 @@
     <transition >
       <div key="startpage" class="start-page" v-if="!game">
         <h3 class="logo">Cro<span>SS</span>line</h3>
-        <div class="statistics">
+        <perfect-scrollbar>
+          <div class="statistics">
           <span class="total"><span>BALANCE: </span><span class="flex"><animated-number :number="userInfo.balance" />CRS</span> </span>
           <span class="stat-info"><span>User name: </span><span>@blbmvdk</span> </span>
           <span class="stat-info"><span>Wins: </span><span>10/20</span> </span>
@@ -19,6 +20,7 @@
           </div>
           <button class="btn" @click="userInfo.balance += 100">Get 100 CRS</button>
         </div>
+        </perfect-scrollbar>
 <!--        <span v-if="user"> {{user && user.username ? user.username : '@blbmvdk'}} </span>-->
       </div>
       <div key="gamepage" class="game-page" v-else>
@@ -126,11 +128,16 @@ onMounted(()=>{
       max-width:50%;
       margin:50px 0;
     }
+    .ps{
+      flex-grow: 1;
+      width:100%;
+    }
     .statistics{
-      padding:20px;
+      padding:10px 20px 20px;
       box-sizing: border-box;
       border:1px solid rgba(255,255,255,0.1);
-      height:calc(100% - 210px);
+      height:100%;
+      max-height:calc(100% - 80px);
       border-radius: 10px;
       background: rgba(255,255,255,0.02);
       width:100%;

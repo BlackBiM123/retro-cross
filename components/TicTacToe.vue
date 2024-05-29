@@ -202,7 +202,6 @@ onMounted(()=>{
   position: relative;
   z-index: 1;
 }
-.cell-x
 .cell.ready{
   left:0 !important;
   top:0 !important;

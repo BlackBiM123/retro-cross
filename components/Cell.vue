@@ -3,11 +3,12 @@
       :style="generatePosition()"
       :class="['cell', { 'fading': isFading(props.rowIndex, props.cellIndex), 'cell-x': props.cell === 'X', 'cell-o': props.cell === 'O', 'winning': isWinningCell(props.rowIndex, props.cellIndex) }]"
       @click="makeMove"
+
   >
 
 
-    <Icon v-if="props.cell === 'X'" name="cryptocurrency-color:btc" size="38" />
-    <Icon v-if="props.cell === 'O'" name="cryptocurrency-color:eth" size="38" />
+    <Icon class="square origin-center" v-if="props.cell === 'X'" name="cryptocurrency-color:btc" size="38" />
+    <Icon class="square origin-center" v-if="props.cell === 'O'" name="cryptocurrency-color:eth" size="38" />
   </div>
 </template>
 
@@ -51,10 +52,38 @@ const isWinningCell = (row, col) => {
 }
 .cell{
   &.cell-x{
-    background: #2c156b;
+    //background: #2c156b;
+    background: #ffbb4b;
   }
   &.cell-o{
     background: #392bbb;
   }
 }
+
+
+.square {
+  position: relative;
+  color: #fff;
+  font-size: 1.5em;
+  text-align: center;
+  animation: 1s cubic-bezier(.29,.64,.7,.26) rotate;
+}
+
+.origin {
+  &-center {
+    transform-origin: center;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotateY(0deg);
+  }
+
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+
 </style>
