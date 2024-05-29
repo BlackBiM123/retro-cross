@@ -1,33 +1,43 @@
 <template>
   <div class="tic-tac-toe">
-    <div style="margin-bottom:20px;">Tries: {{tries}} Line to Win: {{nToWin}}</div>
+
     <div v-for="(row, rowIndex) in board" :key="rowIndex" class="row">
-      <div
+      <cell
           v-for="(cell, cellIndex) in row"
           :key="cellIndex"
-          :style="generatePosition()"
-          :class="['cell', { 'fading': isFading(rowIndex, cellIndex), 'cell-x': cell === 'X', 'cell-o': cell === 'O', 'winning': isWinningCell(rowIndex, cellIndex) }]"
-          @click="() => makeMove(rowIndex, cellIndex)"
-      >
-        {{ cell }}
+          :cell="cell"
+          :row-index="rowIndex"
+          :cell-index="cellIndex"
+          :initDone="initDone"
+          :winning-cells="winningCells"
+          :tries="tries"
+          :current-player="currentPlayer"
+          :moves-history="movesHistory"
+          :winner="winner"
+          @make-move="makeMove"
+
+      />
+    </div>
+    <div class="tic-tac-toe-info-panel flex">
+      <div class="flex">
+        <div style="margin-bottom:20px;">Tries: {{tries}} | Line to Win: {{nToWin}}</div>
+        <Icon @click="resetGame"name="material-symbols:settings-backup-restore" size="28" />
       </div>
     </div>
-    <div v-if="winner" class="winner">
-      Победитель: {{ winner }}
-    </div>
-    <button class="btn" @click="resetGame">Сбросить игру</button>
-    <button class="btn" @click="emits('back')">В меню</button>
   </div>
 </template>
 
 <script setup>
 import {onMounted, ref} from 'vue';
+import Cell from './Cell.vue'
+import { useVibrate } from '@vueuse/core'
 
+const { vibrate, stop, isSupported } = useVibrate({ pattern: [100] })
 const props = defineProps(['gameSet'])
 const emits = defineEmits(['back'])
 // Размер поля и условия победы
 const rows = props.gameSet ? props.gameSet.rows : 5;
-const cols =  props.gameSet ? props.gameSet.rows : 5;
+const cols =  props.gameSet ? props.gameSet.cols : 5;
 const tries = props.gameSet ? props.gameSet.tries : 4;  // Максимальное количество одновременно поставленных крестиков или ноликов
 const nToWin = props.gameSet ? props.gameSet.nToWin : 4;  // Количество крестиков или ноликов для победы
 
@@ -36,17 +46,6 @@ const currentPlayer = ref('X');
 const winner = ref(null);
 
 let initDone = ref(false)
-
-function generatePosition() {
-  let min = -200, max = 200
-  let left = !initDone.value ? Math.floor(Math.random() * (max - min + 1)) + min : 0
-  let top = !initDone.value ? Math.floor(Math.random() * (50 - -50 + 1)) + -50 : 0
-  let index = !initDone.value ? Math.floor(Math.random() * (30 - 1 + 1)) + 1 : 1
-  let scale = !initDone.value ? Math.random() * (2 - 0.1) + 0.1 : 1
-  let opacity = !initDone.value ? Math.random() * (0.2 - 0.01) + 0.01 : 1
-  let td = Math.random() * (1 - 0.1) + 0.1
-  return [`left: ${left}px`, `top: ${top}px`, `z-index: ${index}`, `transform: scale(${scale})`, `opacity: ${opacity}`, `transition-duration: ${td}s`]
-}
 
 const movesHistory = ref({ X: [], O: [] });  // История ходов для каждого игрока
 const winningCells = ref([]);  // Ячейки выигрышной линии
@@ -138,6 +137,9 @@ const checkWinner = () => {
 
 const makeMove = (row, col) => {
   if (!board.value[row][col] && !winner.value) {
+
+
+    vibrate()
     const currentMoves = movesHistory.value[currentPlayer.value];
     if (currentMoves.length === tries) {
       const oldestMove = currentMoves.shift();
@@ -176,7 +178,7 @@ onMounted(()=>{
 })
 </script>
 
-<style>
+<style lang="scss">
 .tic-tac-toe {
   display: flex;
   flex-direction: column;
@@ -207,14 +209,8 @@ onMounted(()=>{
   transform: none !important;
   opacity: 1 !important;
 }
-
-.fading {
-  animation: flash infinite;
-  animation-duration: 1s;
-}
-
 .winning {
-  background-color: green;
+  background-color: #01d705 !important;
 }
 .btn{
   margin-top:30px;
@@ -223,5 +219,31 @@ onMounted(()=>{
   margin-top: 20px;
   font-size: 18px;
   font-weight: bold;
+  span{
+    font-size:24px;
+    color:#01d705;
+  }
+}
+.tic-tac-toe-info-panel{
+  display:flex;
+  flex-direction: column;
+  width:100%;
+  padding:10px;
+  box-sizing: border-box;
+  font-size:18px;
+  position: fixed;
+  top:0px;
+  left:0px;
+  .flex{
+    width:100%;
+    display:flex;
+    justify-content: space-between;
+  }
+  .winner{
+    width:100%;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 </style>

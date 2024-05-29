@@ -1,20 +1,37 @@
 <template>
   <div class="main">
-    <div class="layout"></div>
+<!--<div class="layout"></div>-->
     <transition >
       <div key="startpage" class="start-page" v-if="!game">
         <img src="public/logo-retro.svg">
-        <span v-if="user"> {{user.username}} </span>
-
-        <button style="font-size:10px;" class="btn" @click="startGame(4,4,4,4)">4х4 (4 tries - 4 for win)</button>
-        <button style="font-size:10px;" class="btn" @click="startGame(5,5,4,4)">5х5 (4 tries - 4 for win)</button>
-        <button style="font-size:10px;" class="btn" @click="startGame(5,5,5,4)">5х5 (5 tries - 4 for win)</button>
+        <div class="statistics">
+          <span class="total"><span>BALANCE: </span><span class="flex"><animated-number :number="userInfo.balance" />CRS</span> </span>
+          <span class="stat-info"><span>User name: </span><span>@blbmvdk</span> </span>
+          <span class="stat-info"><span>Wins: </span><span>10/20</span> </span>
+          <span class="stat-info"><span>Rating </span><span>3876</span> </span>
+          <div class="inventory">
+            <div class="flex inv-item">
+              <Icon name="💣" size="48" /> <span>x 1</span>
+            </div>
+            <div class="flex inv-item">
+              <Icon name="🚀" size="48" /> <span>x 3</span>
+            </div>
+          </div>
+          <button class="btn" @click="userInfo.balance += 100">Get 100 CRS</button>
+        </div>
+        <span v-if="user"> {{user && user.username ? user.username : '@blbmvdk'}} </span>
       </div>
       <div key="gamepage" class="game-page" v-else>
         <tic-tac-toe :game-set="gameSet" @back="back"/>
       </div>
 
     </transition>
+    <div class="bottom-nav">
+      <span class="nav-item" @click="back"><Icon name="majesticons:article-line" size="36" /></span>
+      <span class="nav-item" ><Icon name="solar:money-bag-bold" color="" size="36" /></span>
+      <span class="nav-item" @click="startGame(5,5,4,4)"><Icon name="game-icons:abstract-050" size="32" /></span>
+
+    </div>
   </div>
 </template>
 
@@ -22,11 +39,15 @@
 import { MainButton, useWebAppPopup } from 'vue-tg'
 import {ref, computed, onMounted} from 'vue'
 import TicTacToe from "./TicTacToe.vue";
+import AnimatedNumber from "./AnimatedNumber.vue";
 const { showAlert } = useWebAppPopup()
 
 let game = ref(false),
     user = ref(null),
-    gameSet = ref(null)
+    gameSet = ref(null),
+    userInfo = ref({
+      balance: 50000
+    })
 
 
 function back(){
@@ -35,7 +56,7 @@ function back(){
   window.Telegram.WebApp.MainButton.show() //show telegram btn
 }
 function startGame(rows, cols, tries, nToWin) {
-  gameSet.value = {rows, cols, tries, nToWin}
+  gameSet.value = rows ? {rows, cols, tries, nToWin} : null
   game.value = true
   window.Telegram.WebApp.MainButton.hide()
   window.Telegram.WebApp.expand()
@@ -46,7 +67,7 @@ onMounted(()=>{
     window.Telegram.WebApp.setBackgroundColor('#121113')
     user.value = window.Telegram.WebApp.initDataUnsafe.user
     window.Telegram.WebApp.expand()
-    window.Telegram.WebApp.MainButton.onClick(startGame) //set func on main button click
+    window.Telegram.WebApp.MainButton.onClick(startGame(5,5,4,4)) //set func on main button click
     window.Telegram.WebApp.MainButton.setParams({'text': 'Play RetroCROSS'}) // set byn params
     window.Telegram.WebApp.MainButton.textColor = '#121113'
     window.Telegram.WebApp.MainButton.color = '#ffb537'
@@ -74,6 +95,7 @@ onMounted(()=>{
   align-items: center;
   justify-content: center;
   background-image: linear-gradient(to bottom, #0b0031, #16114a, #291c64, #3d267f, #53319b);
+  overflow: hidden;
   .layout{
     display:none;
     position: fixed;
@@ -90,8 +112,56 @@ onMounted(()=>{
     display:flex;
     flex-direction: column;
     align-items: center;
+    flex-grow: 1;
     img{
       max-width:50%;
+      margin:50px 0;
+    }
+    .statistics{
+      padding:20px;
+      box-sizing: border-box;
+      border:1px solid rgba(255,255,255,0.1);
+      height:calc(100% - 260px);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.02);
+      width:100%;
+      display:flex;
+      flex-direction: column;
+      .stat-info{
+        display:flex;
+        justify-content: space-between;
+        width:100%;
+        padding-bottom:10px;
+        border-bottom:1px solid rgba(255,255,255,0.03);
+        font-size:16px;
+        margin-bottom:20px;
+      }
+      .total{
+        display:flex;
+        justify-content: space-between;
+        width:100%;
+        font-size:28px;
+        text-transform: uppercase;
+        color: #ffdb8b;
+        padding-bottom:10px;
+        border-bottom:1px solid rgba(255,255,255,0.1);
+        margin-bottom:20px;
+      }
+      .inventory{
+        display:flex;
+        align-items: center;
+        justify-content: space-around;
+        margin: 30px 0;
+        .inv-item{
+          display:flex;
+          align-items: center;
+          font-size:30px;
+          span{
+            display:flex;
+            margin-left:10px;
+          }
+        }
+      }
     }
     h3{
       margin:40px 0;
@@ -134,6 +204,25 @@ onMounted(()=>{
       }
     }
   }
+}
+.bottom-nav{
+  position: fixed;bottom:0;left:0;
+  width:100%;
 
+  display:flex;
+  justify-content: space-between;
+  border-top:1px solid rgba(255,255,255,0.5);
+  .nav-item{
+    width:33%;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    height:50px;
+    border-right:1px solid rgba(255,255,255,0.5);
+    background: linear-gradient(to right bottom, rgba(255,255,255,0.03), rgba(255,255,255,0.13));
+    &:last-child{
+      border:none;
+    }
+  }
 }
 </style>
