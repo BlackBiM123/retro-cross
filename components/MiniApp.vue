@@ -3,7 +3,7 @@
 <!--<div class="layout"></div>-->
     <transition >
       <div key="startpage" class="start-page" v-if="!game">
-        <img src="public/logo-retro.svg">
+        <h3 class="logo">Cro<span>SS</span>line</h3>
         <div class="statistics">
           <span class="total"><span>BALANCE: </span><span class="flex"><animated-number :number="userInfo.balance" />CRS</span> </span>
           <span class="stat-info"><span>User name: </span><span>@blbmvdk</span> </span>
@@ -19,7 +19,7 @@
           </div>
           <button class="btn" @click="userInfo.balance += 100">Get 100 CRS</button>
         </div>
-        <span v-if="user"> {{user && user.username ? user.username : '@blbmvdk'}} </span>
+<!--        <span v-if="user"> {{user && user.username ? user.username : '@blbmvdk'}} </span>-->
       </div>
       <div key="gamepage" class="game-page" v-else>
         <tic-tac-toe :game-set="gameSet" @back="back"/>
@@ -88,13 +88,20 @@ onMounted(()=>{
   opacity: 0;
 }
 .main{
-  padding:50px;
+  padding:30px 0;
   display:flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   background-image: linear-gradient(to bottom, #0b0031, #16114a, #291c64, #3d267f, #53319b);
   overflow: hidden;
+  .logo{
+    font-size:48px;
+    color:#53319b;
+    span{
+      color:#f5bf65;
+    }
+  }
   .layout{
     display:none;
     position: fixed;
@@ -120,7 +127,7 @@ onMounted(()=>{
       padding:20px;
       box-sizing: border-box;
       border:1px solid rgba(255,255,255,0.1);
-      height:calc(100% - 260px);
+      height:calc(100% - 210px);
       border-radius: 10px;
       background: rgba(255,255,255,0.02);
       width:100%;
@@ -150,7 +157,7 @@ onMounted(()=>{
         display:flex;
         align-items: center;
         justify-content: space-around;
-        margin: 30px 0;
+        flex-grow: 1;
         .inv-item{
           display:flex;
           align-items: center;
