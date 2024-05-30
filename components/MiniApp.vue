@@ -2,34 +2,37 @@
   <div class="main">
 <!--<div class="layout"></div>-->
     <transition >
-      <div key="startpage" class="start-page" v-if="!game">
+      <div key="startpage" class="start-page" v-if="view === 'stat'">
         <h3 class="logo">Cro<span>SS</span>line</h3>
         <perfect-scrollbar>
           <div class="statistics">
-          <span class="total"><span>BALANCE: </span><span class="flex"><animated-number :number="userInfo.balance" />CRS</span> </span>
+          <span class="total"><span>BALANCE: </span><span class="flex"><animated-number :number="gameStore.balance" />CRS</span> </span>
           <span class="stat-info"><span>User name: </span><span>@blbmvdk</span> </span>
           <span class="stat-info"><span>Wins: </span><span>10/20</span> </span>
           <span class="stat-info"><span>Rating </span><span>3876</span> </span>
           <div class="inventory">
             <div class="flex inv-item">
-              <Icon name="💣" size="48" /> <span>x 1</span>
+              <Icon name="💣" size="48" /> <span>x <span>{{gameStore.inventory.bombs}}</span></span>
             </div>
             <div class="flex inv-item">
-              <Icon name="🚀" size="48" /> <span>x 3</span>
+              <Icon name="🚀" size="48" /> <span>x <span>{{gameStore.inventory.nitro}}</span></span>
             </div>
           </div>
-          <button class="btn" @click="userInfo.balance += 100">Get 100 CRS</button>
+          <button class="btn" @click="gameStore.increaseBalance(100)">Get 100 CRS</button>
         </div>
         </perfect-scrollbar>
 <!--        <span v-if="user"> {{user && user.username ? user.username : '@blbmvdk'}} </span>-->
       </div>
-      <div key="gamepage" class="game-page" v-else>
+      <div class="store" v-else-if="view === 'store'">
+        <store />
+      </div>
+      <div key="gamepage" class="game-page" v-else-if="view === 'game'">
         <tic-tac-toe :game-set="gameSet" @back="back"/>
       </div>
     </transition>
     <div class="bottom-nav">
       <span class="nav-item" @click="back"><Icon name="majesticons:article-line" size="36" /></span>
-      <span class="nav-item" ><Icon name="solar:money-bag-bold" color="" size="36" /></span>
+      <span class="nav-item" @click="view = 'store'"><Icon name="solar:money-bag-bold" color="" size="36" /></span>
       <span class="nav-item" @click="startGame(5,5,4,4)"><Icon name="game-icons:abstract-050" size="32" /></span>
 
     </div>
@@ -41,17 +44,20 @@ import { MainButton, useWebAppPopup } from 'vue-tg'
 import {ref, computed, onMounted} from 'vue'
 import TicTacToe from "./TicTacToe.vue";
 import AnimatedNumber from "./AnimatedNumber.vue";
+import Store from "./Store.vue";
+import {useGameStore} from "../store/gameStore.js";
 const { showAlert } = useWebAppPopup()
 
-let game = ref(false),
-    user = ref(null),
-    gameSet = ref(null),
-    userInfo = ref({
-      balance: 50000
-    })
 
+const gameStore = useGameStore()
+
+let game = ref(false),
+    view = ref('stat'),
+    user = ref(null),
+    gameSet = ref(null)
 
 function back(){
+  view.value = 'stat'
   game.value = false
   gameSet.value = null
   //window.Telegram.WebApp.MainButton.show() //show telegram btn
@@ -59,6 +65,7 @@ function back(){
 function startGame(rows, cols, tries, nToWin) {
   gameSet.value = rows ? {rows, cols, tries, nToWin} : null
   game.value = true
+  view.value = 'game'
   window.Telegram.WebApp.MainButton.hide()
   window.Telegram.WebApp.expand()
 }
@@ -94,10 +101,11 @@ onMounted(()=>{
   display:flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   //background-image: linear-gradient(to bottom, #0b0031, #16114a, #291c64, #3d267f, #53319b);
   background-image: linear-gradient(to bottom, #080018, #0d0a31, #261b50, #2d2057, #53319b);
-  overflow: hidden;
+  overflow: auto;
+  max-height:calc(100vh - 50px);
   .logo{
     font-size:48px;
     color:#53319b;
@@ -124,6 +132,7 @@ onMounted(()=>{
     flex-grow: 1;
     min-width: 320px;
     width: 90%;
+    margin-bottom:30px;
     img{
       max-width:50%;
       margin:50px 0;
@@ -137,10 +146,10 @@ onMounted(()=>{
       box-sizing: border-box;
       border:1px solid rgba(255,255,255,0.1);
       height:100%;
-      max-height:calc(100% - 80px);
+
       border-radius: 10px;
       background: rgba(255,255,255,0.02);
-      width:100%;
+
       display:flex;
       flex-direction: column;
       .stat-info{
@@ -184,6 +193,7 @@ onMounted(()=>{
     }
   }
   .game-page{
+    padding:50px 0;
     .retro-cross-field{
       display:flex;
       flex-wrap: wrap;
@@ -220,6 +230,10 @@ onMounted(()=>{
       }
     }
   }
+  .store{
+    min-width: 320px;
+    width: 90%;
+  }
 }
 .bottom-nav{
   position: fixed;bottom:0;left:0;
@@ -236,6 +250,7 @@ onMounted(()=>{
     height:50px;
     border-right:1px solid rgba(255,255,255,0.5);
     background: linear-gradient(to right bottom, rgba(255,255,255,0.03), rgba(255,255,255,0.13));
+    background-image: linear-gradient(to bottom, #2d2057, #53319b);
     &:last-child{
       border:none;
     }

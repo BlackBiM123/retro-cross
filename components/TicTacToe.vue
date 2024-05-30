@@ -1,7 +1,9 @@
 <template>
   <div class="tic-tac-toe">
-
-    <div v-for="(row, rowIndex) in board" :key="rowIndex" class="row">
+    <div class="boom-layout" v-if="boomLayout">
+      <img src="public/boom.png">
+    </div>
+    <div v-for="(row, rowIndex) in board" :key="rowIndex" class="row" :class="{'front': rowIndex === bombPosition[0] && makeBoom}">
       <cell
           v-for="(cell, cellIndex) in row"
           :key="cellIndex"
@@ -14,9 +16,13 @@
           :current-player="currentPlayer"
           :moves-history="movesHistory"
           :winner="winner"
+          :with-bomb="bombPosition[0] === rowIndex && bombPosition[1] === cellIndex"
+          :make-boom="makeBoom"
           @make-move="makeMove"
-
       />
+    </div>
+    <div class="game-inventory">
+      <Icon name="💣" size="48" class="game-bomb" :class="{'active': activeBomb}" @click="bombActivate"/> <span style="margin-left:10px;">x <span class="number">{{gameStore.inventory.bombs}}</span></span>
     </div>
     <div class="tic-tac-toe-info-panel flex">
       <div class="flex">
@@ -28,13 +34,18 @@
 </template>
 
 <script setup>
+
 import {onMounted, ref} from 'vue';
 import Cell from './Cell.vue'
 import { useVibrate } from '@vueuse/core'
+import {useGameStore} from "../store/gameStore.js";
+const gameStore = useGameStore()
+const { vibrate, stop, isSupported } = useVibrate({ pattern: [300, 100, 300] })
 
-const { vibrate, stop, isSupported } = useVibrate({ pattern: [100] })
+
 const props = defineProps(['gameSet'])
 const emits = defineEmits(['back'])
+
 // Размер поля и условия победы
 const rows = props.gameSet ? props.gameSet.rows : 5;
 const cols =  props.gameSet ? props.gameSet.cols : 5;
@@ -46,6 +57,10 @@ const currentPlayer = ref('X');
 const winner = ref(null);
 
 let initDone = ref(false)
+let activeBomb = ref(false),
+    makeBoom = ref(false),
+    bombPosition = ref([null, null]),
+    boomLayout = ref(false)
 
 const movesHistory = ref({ X: [], O: [] });  // История ходов для каждого игрока
 const winningCells = ref([]);  // Ячейки выигрышной линии
@@ -135,9 +150,36 @@ const checkWinner = () => {
   }
 };
 
+function setBomb(row, col) {
+  bombPosition.value = [row, col]
+  gameStore.bombUpdate(true, 1)
+  activeBomb.value = false
+}
+function boom() {
+  makeBoom.value = true
+  setTimeout(()=>{
+    bombPosition.value[0] = null
+    bombPosition.value[1] = null
+    currentPlayer.value = currentPlayer.value === 'X' ? 'O' : 'X';
+    makeBoom.value = false
+    boomLayout.value = true
+  },2000)
+  setTimeout(()=> boomLayout.value = false, 2600)
+
+}
+
 const makeMove = (row, col) => {
   if (!board.value[row][col] && !winner.value) {
 
+    if (activeBomb.value) {
+      setBomb(row, col)
+      return
+    }
+
+    if (bombPosition.value[0] === row && bombPosition.value[1] === col) {
+      boom()
+      return
+    }
 
     vibrate()
     const currentMoves = movesHistory.value[currentPlayer.value];
@@ -153,14 +195,9 @@ const makeMove = (row, col) => {
   }
 };
 
-const isFading = (row, col) => {
-  const currentMoves = movesHistory.value[currentPlayer.value];
-  return currentMoves.length === tries && currentMoves[0].row === row && currentMoves[0].col === col && !winner.value;
-};
-
-const isWinningCell = (row, col) => {
-  return winningCells.value.some(cell => cell.row === row && cell.col === col);
-};
+function bombActivate() {
+  if (gameStore.inventory.bombs > 0)  activeBomb.value = true
+}
 
 const resetGame = () => {
   board.value = Array.from({ length: rows }, () => Array(cols).fill(''));
@@ -184,11 +221,33 @@ onMounted(()=>{
   flex-direction: column;
   align-items: center;
 }
-
 .row {
   display: flex;
+  &.front{
+    position: relative;
+    z-index: 99999;
+  }
 }
+.boom-layout{
+  display:flex;
+  position: fixed;
+  left:0;
+  top:0;
+  width:100%;
+  height:100%;
+  background:#FFF;
+  background-image: linear-gradient(to bottom, #080018, #0d0a31, #261b50, #2d2057, #53319b);
 
+  align-items: center;
+  justify-content: center;
+  z-index: 9999999;
+  opacity: 1;
+  img{
+    width:90%;
+    z-index: 99999999;
+    position: relative;
+  }
+}
 .cell {
   width: 60px;
   height: 60px;
@@ -231,8 +290,8 @@ onMounted(()=>{
   box-sizing: border-box;
   font-size:18px;
   position: fixed;
-  top:0px;
-  left:0px;
+  top:0;
+  left:0;
   .flex{
     width:100%;
     display:flex;
@@ -244,5 +303,21 @@ onMounted(()=>{
     align-items: center;
     justify-content: center;
   }
+}
+.game-inventory{
+  margin-top:20px;
+  display:flex;
+  align-items: center;
+  .number{
+    font-size: 20px;
+    margin-left:10px;
+  }
+  .game-bomb{
+    &.active{
+      animation: flash infinite;
+      animation-duration: 1s;
+    }
+  }
+
 }
 </style>

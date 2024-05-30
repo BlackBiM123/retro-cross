@@ -1,25 +1,49 @@
 <template>
   <div
       :style="generatePosition()"
-      :class="['cell', { 'fading': isFading(props.rowIndex, props.cellIndex), 'cell-x': props.cell === 'X', 'cell-o': props.cell === 'O', 'winning': isWinningCell(props.rowIndex, props.cellIndex) }]"
+      :class="[
+          'cell',
+           {
+             'fading': isFading(props.rowIndex, props.cellIndex),
+             'cell-x': props.cell === 'X',
+             'cell-o': props.cell === 'O',
+             'winning': isWinningCell(props.rowIndex, props.cellIndex),
+             'boom': boomAnimate
+           }
+      ]"
       @click="makeMove"
 
   >
+    <div class="game-bomb" v-if="props.withBomb">
+      <Icon name="💣" size="48" class="game-bomb-icon" />
+    </div>
 
-
-    <Icon class="square origin-center" v-if="props.cell === 'X'" name="cryptocurrency-color:btc" size="38" />
-    <Icon class="square origin-center" v-if="props.cell === 'O'" name="cryptocurrency-color:eth" size="38" />
+    <Icon class="square origin-center" v-else-if="props.cell === 'X'" :name="iconX" size="38" />
+    <Icon class="square origin-center" v-else-if="props.cell === 'O'" name="cryptocurrency-color:eth" size="38" />
   </div>
 </template>
 
 <script setup>
-const props = defineProps(['cell', 'rowIndex', 'cellIndex', 'initDone', 'winningCells', 'tries', 'currentPlayer', 'movesHistory', 'winner'])
-const emits = defineEmits(['makeMove'])
+import {useGameStore} from "../store/gameStore.js";
 
+const props = defineProps(['cell', 'rowIndex', 'cellIndex', 'initDone', 'winningCells', 'tries', 'currentPlayer', 'movesHistory', 'winner', 'newIcon', 'withBomb', 'makeBoom'])
+const emits = defineEmits(['makeMove'])
+const gameStore = useGameStore()
 const isFading = (row, col) => {
   const currentMoves = props.movesHistory[props.currentPlayer];
   return currentMoves.length === props.tries && currentMoves[0].row === row && currentMoves[0].col === col && !props.winner;
 };
+
+const iconX = computed(()=>{
+  //if (props.newIcon) return props.newIcon
+  //return 'cryptocurrency-color:btc'
+  console.log(gameStore.inventory.xSkins[0])
+  return gameStore.inventory.xSkins[0]
+})
+
+const boomAnimate = computed(()=>{
+  return props.withBomb && props.makeBoom
+})
 
 function makeMove() {
   emits('makeMove', props.rowIndex, props.cellIndex)
@@ -50,6 +74,27 @@ const isWinningCell = (row, col) => {
   }
 
 }
+.cell.boom{
+  position: relative;
+  z-index: 99999;
+  .game-bomb{
+    opacity: 1;
+    animation: shaking 0.15s linear infinite
+  }
+  .game-bomb-icon{
+    animation: zoom 3s linear;
+  }
+  .boom-layout{
+    display:flex;
+    animation: flash-once 1s linear;
+    animation-delay: 2.8s;
+  }
+}
+
+
+.game-bomb {
+  opacity: 0.2;
+}
 .cell{
   &.cell-x{
     //background: #2c156b;
@@ -66,7 +111,7 @@ const isWinningCell = (row, col) => {
   color: #fff;
   font-size: 1.5em;
   text-align: center;
-  animation: 1s cubic-bezier(.29,.64,.7,.26) rotate;
+  //animation: 1s cubic-bezier(.29,.64,.7,.26) rotate;
 }
 
 .origin {
