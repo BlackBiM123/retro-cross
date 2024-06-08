@@ -1,7 +1,22 @@
 <template>
-  <div class="tic-tac-toe">
+  <div class="search" v-if="isPrepare">
+    <div class="searching-icon">
+      <Icon name="🔍" size="88" class=""/>
+    </div>
+    <span>Game search</span>
+  </div>
+  <div class="tic-tac-toe" v-else>
     <div class="boom-layout" v-if="boomLayout">
       <img src="public/boom.png">
+    </div>
+    <div class="tic-tac-toe-info-panel flex">
+      <div class="flex">
+        <div style="margin-bottom:20px;">Tries: {{tries}} | Line to Win: {{nToWin}}</div>
+        <Icon @click="resetGame"name="material-symbols:settings-backup-restore" size="28" />
+      </div>
+      <div class="step-status">
+        Player 1 is planning something<Icon name="👀" size="22"/>
+      </div>
     </div>
     <div v-for="(row, rowIndex) in board" :key="rowIndex" class="row" :class="{'front': rowIndex === bombPosition[0] && makeBoom}">
       <cell
@@ -24,12 +39,6 @@
     <div class="game-inventory">
       <Icon name="💣" size="48" class="game-bomb" :class="{'active': activeBomb}" @click="bombActivate"/> <span style="margin-left:10px;">x <span class="number">{{gameStore.inventory.bombs}}</span></span>
     </div>
-    <div class="tic-tac-toe-info-panel flex">
-      <div class="flex">
-        <div style="margin-bottom:20px;">Tries: {{tries}} | Line to Win: {{nToWin}}</div>
-        <Icon @click="resetGame"name="material-symbols:settings-backup-restore" size="28" />
-      </div>
-    </div>
   </div>
 </template>
 
@@ -37,10 +46,20 @@
 
 import {onMounted, ref} from 'vue';
 import Cell from './Cell.vue'
-import { useVibrate } from '@vueuse/core'
+import { useVibrate, useWebSocket } from '@vueuse/core'
 import {useGameStore} from "../store/gameStore.js";
 const gameStore = useGameStore()
 const { vibrate, stop, isSupported } = useVibrate({ pattern: [300, 100, 300] })
+
+const socketObj = useWebSocket('WS://62.109.29.111:3010', {
+  autoReconnect: {
+    retries: 3,
+    delay: 1000,
+    onFailed() {
+      console.log('Failed to connect WebSocket after 3 retries')
+    },
+  },
+})
 
 
 const props = defineProps(['gameSet'])
@@ -60,7 +79,8 @@ let initDone = ref(false)
 let activeBomb = ref(false),
     makeBoom = ref(false),
     bombPosition = ref([null, null]),
-    boomLayout = ref(false)
+    boomLayout = ref(false),
+    isPrepare = ref(true)
 
 const movesHistory = ref({ X: [], O: [] });  // История ходов для каждого игрока
 const winningCells = ref([]);  // Ячейки выигрышной линии
@@ -211,11 +231,35 @@ onMounted(()=>{
     document.querySelectorAll('.cell').forEach(item => item.classList.add('ready'))
     initDone.value = true
   }, 100)
-
+  console.log(window.Telegram.WebApp.initDataUnsafe.user)
+  if (socketObj) socketObj.send({"type": "join","userID": window.Telegram.WebApp.initDataUnsafe.user ? window.Telegram.WebApp.initDataUnsafe.user.id : 1})
 })
 </script>
 
 <style lang="scss">
+.mover {
+  offset-rotate: reverse;
+  offset-rotate: 0deg;
+  offset-path: circle(40px at center);
+}
+
+
+.mover {
+  offset-path: path('M0,144 C79.529004,144 144,79.529004 144,0 C144,-79.529004 79.529004,-144 0,-144 C-79.529004,-144 -144,-79.529004 -144,0 C-144,79.529004 -79.529004,144 0,144 Z');  animation: move 2s linear infinite;
+}
+@keyframes move {
+  to {
+    offset-distance: 100%;
+  }
+}
+
+
+.mover {
+  position: absolute;
+  left: 30%;
+  top: 100px;
+}
+
 .tic-tac-toe {
   display: flex;
   flex-direction: column;
@@ -289,13 +333,15 @@ onMounted(()=>{
   padding:10px;
   box-sizing: border-box;
   font-size:18px;
-  position: fixed;
-  top:0;
-  left:0;
   .flex{
     width:100%;
     display:flex;
     justify-content: space-between;
+  }
+  .step-status{
+    display:flex;
+    width:100%;
+    justify-content: center;
   }
   .winner{
     width:100%;

@@ -84,11 +84,6 @@ const isWinningCell = (row, col) => {
   .game-bomb-icon{
     animation: zoom 3s linear;
   }
-  .boom-layout{
-    display:flex;
-    animation: flash-once 1s linear;
-    animation-delay: 2.8s;
-  }
 }
 
 

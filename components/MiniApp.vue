@@ -15,13 +15,14 @@
               <Icon name="💣" size="48" /> <span>x <span>{{gameStore.inventory.bombs}}</span></span>
             </div>
             <div class="flex inv-item">
-              <Icon name="🚀" size="48" /> <span>x <span>{{gameStore.inventory.nitro}}</span></span>
+              <Icon name="🕳️" size="48" /> <span>x <span>{{gameStore.inventory.nitro}}</span></span>
             </div>
           </div>
           <button class="btn" @click="gameStore.increaseBalance(100)">Get 100 CRS</button>
         </div>
         </perfect-scrollbar>
-<!--        <span v-if="user"> {{user && user.username ? user.username : '@blbmvdk'}} </span>-->
+
+<!--    <span v-if="user"> {{user && user.username ? user.username : '@blbmvdk'}} </span>-->
       </div>
       <div class="store" v-else-if="view === 'store'">
         <store />
@@ -46,6 +47,7 @@ import TicTacToe from "./TicTacToe.vue";
 import AnimatedNumber from "./AnimatedNumber.vue";
 import Store from "./Store.vue";
 import {useGameStore} from "../store/gameStore.js";
+import { useStorage } from '@vueuse/core'
 const { showAlert } = useWebAppPopup()
 
 
@@ -71,6 +73,7 @@ function startGame(rows, cols, tries, nToWin) {
 }
 onMounted(()=>{
   if (window && window.Telegram) {
+
     window.Telegram.WebApp.setHeaderColor('#0b0031')
     window.Telegram.WebApp.setBackgroundColor('#0b0031')
     user.value = window.Telegram.WebApp.initDataUnsafe.user
