@@ -232,8 +232,10 @@ onMounted(()=>{
     initDone.value = true
   }, 100)
   console.log(window.Telegram.WebApp.initDataUnsafe.user)
-  if (socketObj) socketObj.send({"type": "join","userID": window.Telegram.WebApp.initDataUnsafe.user ? window.Telegram.WebApp.initDataUnsafe.user.id : 1})
+  let data = {"type": "join","userID": window.Telegram.WebApp.initDataUnsafe.user ? window.Telegram.WebApp.initDataUnsafe.user.id : 187498520}
+  if (socketObj) socketObj.send(JSON.stringify(data))
 })
+
 </script>
 
 <style lang="scss">
