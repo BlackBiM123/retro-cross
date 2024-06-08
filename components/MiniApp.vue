@@ -22,7 +22,7 @@
         </div>
         </perfect-scrollbar>
 
-<!--    <span v-if="user"> {{user && user.username ? user.username : '@blbmvdk'}} </span>-->
+        <span v-if="user"> {{user}} </span>
       </div>
       <div class="store" v-else-if="view === 'store'">
         <store />
