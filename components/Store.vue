@@ -13,8 +13,8 @@
 import StoreItem from './StoreItem.vue'
 
   const mainItems = ref([
-    {id: 1, type: 'consumables', name: 'bomb', icon: '💣', price: 500},
-    {id: 2, type: 'consumables', name: 'nitro', icon: '🚀', price: 1000},
+    {id: 1, type: 'consumables', name: 'bomb', icon: '💣', price: 1000},
+    {id: 2, type: 'consumables', name: 'nitro', icon: '🕳️', price: 800},
   ])
   const skinXItems = ref([
     {id: 10, type: 'skins', name: '1inch', icon: 'cryptocurrency-color:1inch', price: 2000},

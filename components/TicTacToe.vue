@@ -1,5 +1,5 @@
 <template>
-  <div class="search" v-if="isPrepare">
+  <div class="search" v-if="game.isSearching">
     <div class="searching-icon">
       <Icon name="🔍" size="88" class=""/>
     </div>
@@ -10,12 +10,9 @@
       <img src="public/boom.png">
     </div>
     <div class="tic-tac-toe-info-panel flex">
-      <div class="flex">
-        <div style="margin-bottom:20px;">Tries: {{tries}} | Line to Win: {{nToWin}}</div>
-        <Icon @click="resetGame"name="material-symbols:settings-backup-restore" size="28" />
-      </div>
       <div class="step-status">
-        Player 1 is planning something<Icon name="👀" size="22"/>
+<!--        <span class="trick-user">Player 1</span> is planning something<Icon name="👀" size="22" style="margin-left:10px;"/>-->
+      {{winner + ''}}
       </div>
     </div>
     <div v-for="(row, rowIndex) in board" :key="rowIndex" class="row" :class="{'front': rowIndex === bombPosition[0] && makeBoom}">
@@ -26,7 +23,6 @@
           :row-index="rowIndex"
           :cell-index="cellIndex"
           :initDone="initDone"
-          :winning-cells="winningCells"
           :tries="tries"
           :current-player="currentPlayer"
           :moves-history="movesHistory"
@@ -44,23 +40,23 @@
 
 <script setup>
 
-import {onMounted, ref} from 'vue';
+import {onMounted, ref, watch} from 'vue';
 import Cell from './Cell.vue'
 import { useVibrate, useWebSocket } from '@vueuse/core'
 import {useGameStore} from "../store/gameStore.js";
 const gameStore = useGameStore()
-const { vibrate, stop, isSupported } = useVibrate({ pattern: [300, 100, 300] })
 
-const socketObj = useWebSocket('WS://62.109.29.111:3010', {
+const { vibrate, stop, isSupported } = useVibrate({ pattern: [300, 100, 300] })
+const { data, state, close, send } = useWebSocket('WS://62.109.29.111:3010', {
   autoReconnect: {
     retries: 3,
     delay: 1000,
     onFailed() {
-      console.log('Failed to connect WebSocket after 3 retries')
+      console.log('Failed to connect')
+      emits('back')
     },
   },
 })
-
 
 const props = defineProps(['gameSet'])
 const emits = defineEmits(['back'])
@@ -80,14 +76,16 @@ let activeBomb = ref(false),
     makeBoom = ref(false),
     bombPosition = ref([null, null]),
     boomLayout = ref(false),
-    isPrepare = ref(true)
+    game = ref({
+      isSearching: true,
+      id: null,
+      user: null
+    })
 
 const movesHistory = ref({ X: [], O: [] });  // История ходов для каждого игрока
 const winningCells = ref([]);  // Ячейки выигрышной линии
 
-const checkWinner = () => {
-  winningCells.value = [];
-
+/*const checkWinner = () => {
   // Проверка линии на победу
   const checkLine = (cells) => {
     let count = 1;  // Начинаем с 1, так как первый символ в цепочке всегда одинаковый
@@ -168,11 +166,13 @@ const checkWinner = () => {
   if (board.value.flat().every(cell => cell)) {
     winner.value = 'Ничья';
   }
-};
+};*/
 
 function setBomb(row, col) {
   bombPosition.value = [row, col]
   gameStore.bombUpdate(true, 1)
+  let data = {"type": "bomb","gameId": game.value.id, x: row, y: col}
+  send(JSON.stringify(data))
   activeBomb.value = false
 }
 function boom() {
@@ -189,29 +189,30 @@ function boom() {
 }
 
 const makeMove = (row, col) => {
+  console.log(currentPlayer.value, game.value.user, currentPlayer.value !== game.value.user)
+  if (currentPlayer.value !== game.value.user) {
+    return
+  }
   if (!board.value[row][col] && !winner.value) {
 
     if (activeBomb.value) {
       setBomb(row, col)
       return
     }
-
     if (bombPosition.value[0] === row && bombPosition.value[1] === col) {
       boom()
       return
     }
-
-    vibrate()
     const currentMoves = movesHistory.value[currentPlayer.value];
     if (currentMoves.length === tries) {
-      const oldestMove = currentMoves.shift();
-      board.value[oldestMove.row][oldestMove.col] = '';
+      currentMoves.shift();
     }
-
-    board.value[row][col] = currentPlayer.value;
+    //board.value[row][col] = currentPlayer.value;
     currentMoves.push({ row, col });
-    checkWinner();
-    currentPlayer.value = currentPlayer.value === 'X' ? 'O' : 'X';
+
+
+    let data = {"type": "move","gameId": game.value.id, x: row, y: col}
+    send(JSON.stringify(data))
   }
 };
 
@@ -226,14 +227,38 @@ const resetGame = () => {
   movesHistory.value = { X: [], O: [] };
   winningCells.value = [];
 };
+
+watch(data, (message) => {
+  let data = typeof message === 'string' ? JSON.parse(message) : message
+  console.log('data', data, data.type, data.type === 'start')
+  if (data && data.type && data.type === 'start') {
+    game.value.isSearching = false
+    game.value.id = data.gameId
+    game.value.user = data.symbol
+    setTimeout(()=>{
+      document.querySelectorAll('.cell').forEach(item => item.classList.add('ready'))
+      initDone.value = true
+    }, 100)
+  }
+  if (data && data.type && data.type === 'move', data.board) {
+    board.value = data.board
+  }
+  if (data && data.currentPlayer) {
+    currentPlayer.value = data.currentPlayer
+  }
+  if (data && data.winPlayer) {
+    winner.value = data.winPlayer
+  }
+});
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
 onMounted(()=>{
-  setTimeout(()=>{
-    document.querySelectorAll('.cell').forEach(item => item.classList.add('ready'))
-    initDone.value = true
-  }, 100)
   console.log(window.Telegram.WebApp.initDataUnsafe.user)
-  let data = {"type": "join","userID": window.Telegram.WebApp.initDataUnsafe.user ? window.Telegram.WebApp.initDataUnsafe.user.id : 187498520}
-  if (socketObj) socketObj.send(JSON.stringify(data))
+  let data = {"type": "join","userId": window.Telegram.WebApp.initDataUnsafe.user ? window.Telegram.WebApp.initDataUnsafe.user.id : getRandomInt(9999999)}
+  send(JSON.stringify(data))
 })
 
 </script>

@@ -62,7 +62,6 @@ function back(){
   view.value = 'stat'
   game.value = false
   gameSet.value = null
-  //window.Telegram.WebApp.MainButton.show() //show telegram btn
 }
 function startGame(rows, cols, tries, nToWin) {
   gameSet.value = rows ? {rows, cols, tries, nToWin} : null
@@ -73,7 +72,6 @@ function startGame(rows, cols, tries, nToWin) {
 }
 onMounted(()=>{
   if (window && window.Telegram) {
-
     window.Telegram.WebApp.setHeaderColor('#0b0031')
     window.Telegram.WebApp.setBackgroundColor('#0b0031')
     user.value = window.Telegram.WebApp.initDataUnsafe.user
@@ -83,7 +81,6 @@ onMounted(()=>{
     //window.Telegram.WebApp.MainButton.textColor = '#121113'
     //window.Telegram.WebApp.MainButton.color = '#ffb537'
     //window.Telegram.WebApp.MainButton.show() //show telegram btn
-
   }
 
 })

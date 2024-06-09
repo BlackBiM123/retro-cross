@@ -61,7 +61,8 @@ function generatePosition() {
 }
 
 const isWinningCell = (row, col) => {
-  return props.winningCells.some(cell => cell.row === row && cell.col === col);
+  if (!props.winner) return false
+  else return props.cell === props.winner
 };
 
 </script>
