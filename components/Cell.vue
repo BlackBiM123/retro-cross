@@ -90,6 +90,7 @@ const isWinningCell = (row, col) => {
 
 .game-bomb {
   opacity: 0.2;
+  pointer-events: none;
 }
 .cell{
   &.cell-x{

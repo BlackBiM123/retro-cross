@@ -47,7 +47,7 @@ import {useGameStore} from "../store/gameStore.js";
 const gameStore = useGameStore()
 
 const { vibrate, stop, isSupported } = useVibrate({ pattern: [300, 100, 300] })
-const { data, state, close, send } = useWebSocket('WS://62.109.29.111:3010', {
+const { data, state, close, send } = useWebSocket('wss://cross.2cubes.ru', {
   autoReconnect: {
     retries: 3,
     delay: 1000,
