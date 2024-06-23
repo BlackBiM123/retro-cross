@@ -10,6 +10,10 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  timeout: {
+    type: Number,
+    default: 20,
+  },
 });
 
 const displayNumber = ref(0);
@@ -34,7 +38,7 @@ watch(
           change = change >= 0 ? Math.ceil(change) : Math.floor(change);
           displayNumber.value += change;
         }
-      }, 20);
+      }, props.timeout);
     }
 );
 

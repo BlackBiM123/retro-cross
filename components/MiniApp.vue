@@ -6,7 +6,7 @@
         <h3 class="logo">Cro<span>SS</span>line</h3>
         <perfect-scrollbar>
           <div class="statistics">
-          <span class="total"><span>BALANCE: </span><span class="flex"><animated-number :number="gameStore.balance" />CRS</span> </span>
+          <span class="total"><span>BALANCE: </span><span class="flex"><animated-number :number="gameStore.balance" :timeout="20"/>CRS</span> </span>
           <span class="stat-info"><span>User name: </span><span>@blbmvdk</span> </span>
           <span class="stat-info"><span>Wins: </span><span>10/20</span> </span>
           <span class="stat-info"><span>Rating </span><span>3876</span> </span>
@@ -193,7 +193,8 @@ onMounted(()=>{
     }
   }
   .game-page{
-    padding:50px 0;
+    min-height:100%;
+    width:100%;
     .retro-cross-field{
       display:flex;
       flex-wrap: wrap;

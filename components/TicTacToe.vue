@@ -1,9 +1,9 @@
 <template>
   <div class="search" v-if="game.isSearching">
     <div class="searching-icon">
-      <Icon name="🔍" size="88" class=""/>
+      <Icon name="🔍" size="44" class="gfg"/>
     </div>
-    <span>Game search</span>
+    <span class="waiting-status">Game search <span class="loader"></span></span>
   </div>
   <div class="tic-tac-toe" v-else>
     <div class="boom-layout" v-if="boomLayout">
@@ -11,8 +11,9 @@
     </div>
     <div class="tic-tac-toe-info-panel flex">
       <div class="step-status">
-<!--        <span class="trick-user">Player 1</span> is planning something<Icon name="👀" size="22" style="margin-left:10px;"/>-->
-      {{winner + ''}}
+<!--  <span class="trick-user">Player 1</span> is planning something<Icon name="👀" size="22" style="margin-left:10px;"/>-->
+        <br>
+        <span class="" :class="['count-down', { 'out-of-time': outOfTime, 'out-of-time-anim': outOfTimeAnim}]">{{countDown}}<span>s</span></span>
       </div>
     </div>
     <div v-for="(row, rowIndex) in board" :key="rowIndex" class="row" :class="{'front': rowIndex === bombPosition[0] && makeBoom}">
@@ -28,7 +29,7 @@
           :moves-history="movesHistory"
           :winner="winner"
           :with-bomb="bombPosition[0] === rowIndex && bombPosition[1] === cellIndex"
-          :make-boom="makeBoom"
+          :make-boom="makeBoom[0] === rowIndex && makeBoom[1] === cellIndex"
           @make-move="makeMove"
       />
     </div>
@@ -40,7 +41,7 @@
 
 <script setup>
 
-import {onMounted, ref, watch} from 'vue';
+import {onMounted, computed, ref, watch} from 'vue';
 import Cell from './Cell.vue'
 import { useVibrate, useWebSocket } from '@vueuse/core'
 import {useGameStore} from "../store/gameStore.js";
@@ -74,7 +75,9 @@ const winner = ref(null);
 let initDone = ref(false)
 let activeBomb = ref(false),
     makeBoom = ref(false),
+    countDown = ref(8),
     bombPosition = ref([null, null]),
+    enemyBombPosition = ref([null, null]),
     boomLayout = ref(false),
     game = ref({
       isSearching: true,
@@ -167,6 +170,20 @@ const winningCells = ref([]);  // Ячейки выигрышной линии
     winner.value = 'Ничья';
   }
 };*/
+const outOfTime = computed(()=>{
+  return countDown.value < 4
+})
+const outOfTimeAnim = computed(()=>{
+  return countDown.value < 4 && countDown.value !== 0
+})
+function runCountDown(){
+    if (countDown.value > 0) {
+      setTimeout(() => {
+       countDown.value -= 1
+        runCountDown()
+      }, 1000)
+    }
+}
 
 function setBomb(row, col) {
   bombPosition.value = [row, col]
@@ -175,12 +192,11 @@ function setBomb(row, col) {
   send(JSON.stringify(data))
   activeBomb.value = false
 }
-function boom() {
-  makeBoom.value = true
+function boom(x,y) {
+  makeBoom.value = [x, y]
   setTimeout(()=>{
     bombPosition.value[0] = null
     bombPosition.value[1] = null
-    currentPlayer.value = currentPlayer.value === 'X' ? 'O' : 'X';
     makeBoom.value = false
     boomLayout.value = true
   },2000)
@@ -193,7 +209,7 @@ const makeMove = (row, col) => {
   if (currentPlayer.value !== game.value.user) {
     return
   }
-  if (!board.value[row][col] && !winner.value) {
+  if (!winner.value) {
 
     if (activeBomb.value) {
       setBomb(row, col)
@@ -217,7 +233,10 @@ const makeMove = (row, col) => {
 };
 
 function bombActivate() {
-  if (gameStore.inventory.bombs > 0)  activeBomb.value = true
+  if (gameStore.inventory.bombs > 0)  {
+    send(JSON.stringify({type: "trick_planned", "gameId": game.value.id}))
+    activeBomb.value = true
+  }
 }
 
 const resetGame = () => {
@@ -231,10 +250,16 @@ const resetGame = () => {
 watch(data, (message) => {
   let data = typeof message === 'string' ? JSON.parse(message) : message
   console.log('data', data, data.type, data.type === 'start')
+  if (data && data.type === 'boom') {
+    boom(data.x, data.y)
+    return
+  }
   if (data && data.type && data.type === 'start') {
     game.value.isSearching = false
     game.value.id = data.gameId
     game.value.user = data.symbol
+    countDown.value = 10
+    runCountDown()
     setTimeout(()=>{
       document.querySelectorAll('.cell').forEach(item => item.classList.add('ready'))
       initDone.value = true
@@ -242,6 +267,8 @@ watch(data, (message) => {
   }
   if (data && data.type && data.type === 'move', data.board) {
     board.value = data.board
+    countDown.value = 10
+
   }
   if (data && data.currentPlayer) {
     currentPlayer.value = data.currentPlayer
@@ -253,6 +280,10 @@ watch(data, (message) => {
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
+}
+function test() {
+  let data = {"type": "move","gameId": game.value.id, x: null, y: null}
+  send(JSON.stringify(data))
 }
 
 onMounted(()=>{
@@ -268,25 +299,73 @@ onMounted(()=>{
   offset-rotate: reverse;
   offset-rotate: 0deg;
   offset-path: circle(40px at center);
-}
-
-
-.mover {
+  position: absolute;
+  left: 30%;
+  top: 100px;
   offset-path: path('M0,144 C79.529004,144 144,79.529004 144,0 C144,-79.529004 79.529004,-144 0,-144 C-79.529004,-144 -144,-79.529004 -144,0 C-144,79.529004 -79.529004,144 0,144 Z');  animation: move 2s linear infinite;
+
 }
+@keyframes l1 {to{clip-path: inset(0 -34% 0 0)}}
 @keyframes move {
   to {
     offset-distance: 100%;
   }
 }
-
-
-.mover {
-  position: absolute;
-  left: 30%;
-  top: 100px;
+@keyframes pulse {
+  0% {
+    transform: scale(1.5);
+  }
+  40% {
+    transform: scale(1);
+  }
 }
+.search{
+  display:flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  .searching-icon{
+    width:100%;
+    flex-grow: 1;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .waiting-status{
+    display:flex;
+    align-items: flex-end;
+    padding:30px;
+    font-size:18px;
+    text-transform: lowercase;
+    letter-spacing: 1px;
+    .loader {
+      margin-left:5px;
+      margin-bottom:3px;
+      display:block;
+      width: 20px;
+      aspect-ratio: 4;
+      background: radial-gradient(circle closest-side,#FFF 80%,#0000) 0/calc(100%/3) 100% space;
+      clip-path: inset(0px 100% 0px 0px);
+      animation: l1 1s steps(4) infinite;
+    }
 
+  }
+}
+.gfg{
+  animation: GFG 1s infinite linear;
+}
+@keyframes GFG {
+  0% {
+    transform: rotate(0deg)
+    translateY(10px) rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg)
+    translateY(10px) rotate(-360deg);
+  }
+}
 .tic-tac-toe {
   display: flex;
   flex-direction: column;
@@ -369,6 +448,25 @@ onMounted(()=>{
     display:flex;
     width:100%;
     justify-content: center;
+  }
+  .count-down{
+    font-size:24px;
+    font-weight: 900;
+    color:#f5bf65;
+    padding:20px 0;
+    &.out-of-time{
+      color:red;
+    }
+    &.out-of-time-anim{
+      animation: pulse 1s infinite;
+    }
+    span{
+      display: inline-block;
+      margin-left:3px;
+      color:#FFF;
+      font-size: 18px;
+      font-weight: 300;
+    }
   }
   .winner{
     width:100%;

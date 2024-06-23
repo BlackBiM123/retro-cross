@@ -8,13 +8,13 @@
              'cell-x': props.cell === 'X',
              'cell-o': props.cell === 'O',
              'winning': isWinningCell(props.rowIndex, props.cellIndex),
-             'boom': boomAnimate
+             'boom': props.makeBoom
            }
       ]"
       @click="makeMove"
 
   >
-    <div class="game-bomb" v-if="props.withBomb">
+    <div class="game-bomb" v-if="props.withBomb || makeBoom">
       <Icon name="💣" size="48" class="game-bomb-icon" />
     </div>
 
@@ -42,7 +42,8 @@ const iconX = computed(()=>{
 })
 
 const boomAnimate = computed(()=>{
-  return props.withBomb && props.makeBoom
+  console.log(props.makeBoom, )
+  return props.makeBoom && props.makeBoom[0] === props.rowIndex && props.makeBoom[1] === props.colIndex
 })
 
 function makeMove() {
@@ -91,6 +92,9 @@ const isWinningCell = (row, col) => {
 .game-bomb {
   opacity: 0.2;
   pointer-events: none;
+  &.enemy{
+    opacity:1
+  }
 }
 .cell{
   &.cell-x{
